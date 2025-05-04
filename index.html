@@ -7,11 +7,14 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="gameContainer">
-    <canvas id="gameCanvas" width="600" height="600"></canvas>
-    <div id="gameOverPopup" class="hidden">
-      <p id="finalScore"></p>
-      <button id="restartButton">Play Again</button>
+  <div class="container">
+    <p class="instructions">Use arrow keys to move the snake</p>
+    <div id="gameContainer">
+      <canvas id="gameCanvas" width="600" height="600"></canvas>
+      <div id="gameOverPopup" class="hidden">
+        <p id="finalScore"></p>
+        <button id="restartButton">Play Again</button>
+      </div>
     </div>
   </div>
   <script src="script.js"></script>
