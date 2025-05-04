@@ -10,6 +10,9 @@ let food;
 let score = 0;
 let speed = 200;
 
+const eatSound = new Audio('assets/audio/plastic-crunch-83779.mp3');
+let userInteracted = false; // 🚩 To track user interaction
+
 const foodImages = [
   'assets/images/chicken-leg-chicken-svgrepo-com.svg',
   'assets/images/egg-svgrepo-com.svg',
@@ -41,7 +44,7 @@ function drawSnake() {
 function drawFood() {
   const image = new Image();
   image.src = food.foodImage;
-  image.onload = function() {
+  image.onload = function () {
     ctx.drawImage(image, food.position.x, food.position.y, snakeSize, snakeSize);
   };
 }
@@ -51,6 +54,10 @@ function moveSnake() {
   snake.unshift(head);
 
   if (head.x === food.position.x && head.y === food.position.y) {
+    if (userInteracted) {
+      eatSound.currentTime = 0;
+      eatSound.play().catch(err => console.warn('Sound play blocked:', err));
+    }
     food = randomFood();
     score++;
   } else {
@@ -75,37 +82,46 @@ function checkCollision() {
 }
 
 function gameLoop() {
-    if (checkCollision()) {
-      document.getElementById('finalScore').textContent = `Your score: ${score}`;
-      document.getElementById('gameOverPopup').classList.remove('hidden');
-      document.getElementById('gameOverPopup').classList.add('visible');
-      return;
-    }
-  
-    setTimeout(() => {
-      ctx.clearRect(0, 0, canvasSize, canvasSize);
-      drawFood();
-      moveSnake();
-      drawSnake();
-      gameLoop();
-    }, speed);
+  if (checkCollision()) {
+    document.getElementById('finalScore').textContent = `Your score: ${score}`;
+    document.getElementById('gameOverPopup').classList.remove('hidden');
+    document.getElementById('gameOverPopup').classList.add('visible');
+    return;
   }
-  
-  function restartGame() {
-    snake = [{ x: 300, y: 300 }];
-    dx = snakeSize;
-    dy = 0;
-    food = randomFood();
-    score = 0;
-    document.getElementById('gameOverPopup').classList.remove('visible');
-    document.getElementById('gameOverPopup').classList.add('hidden');
+
+  setTimeout(() => {
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+    drawFood();
+    moveSnake();
+    drawSnake();
     gameLoop();
-  }
-  
+  }, speed);
+}
+
+function restartGame() {
+  snake = [{ x: 300, y: 300 }];
+  dx = snakeSize;
+  dy = 0;
+  food = randomFood();
+  score = 0;
+  document.getElementById('gameOverPopup').classList.remove('visible');
+  document.getElementById('gameOverPopup').classList.add('hidden');
+  gameLoop();
+}
 
 document.getElementById('restartButton').addEventListener('click', restartGame);
 
+// ✅ Enable sound only after key interaction
 document.addEventListener('keydown', e => {
+  if (!userInteracted) {
+    // Try playing sound once to unlock it
+    eatSound.play().then(() => {
+      eatSound.pause();
+      eatSound.currentTime = 0;
+    }).catch(() => {});
+    userInteracted = true;
+  }
+
   switch (e.key) {
     case 'ArrowUp':
     case 'w':
